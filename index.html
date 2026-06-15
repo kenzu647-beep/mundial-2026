@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Calendario interactivo de la Copa Mundial de Fútbol 2026 (Canadá, México y EE. UU.). Datos verificados contra fuentes oficiales." />
+  <title>Mundial 2026 · Calendario interactivo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- PWA (instalable en móvil). Rutas relativas para GitHub Pages en subruta. -->
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <meta name="theme-color" content="#14613b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Mundial 2026" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+</head>
+<body>
+  <!-- ============================ ENCABEZADO ============================ -->
+  <header class="app-header">
+    <div class="app-header__top">
+      <div class="brand">
+        <span class="brand__ball" aria-hidden="true">⚽</span>
+        <div class="brand__text">
+          <h1>Mundial 2026</h1>
+          <p>Canadá · México · EE. UU.</p>
+        </div>
+      </div>
+
+      <div class="header-tools">
+        <label class="tz-picker">
+          <span class="tz-picker__label">Tu zona horaria</span>
+          <select id="tzSelect" aria-label="Selecciona tu zona horaria"></select>
+        </label>
+
+        <div class="export">
+          <button id="exportBtn" class="icon-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Descargar calendario">
+            <span class="icon-btn__icon" aria-hidden="true">⬇️</span>
+          </button>
+          <div class="export__menu" id="exportMenu" role="menu" hidden>
+            <button type="button" data-export="ics-all" role="menuitem">📅 Calendario completo (.ics)</button>
+            <button type="button" data-export="ics-filtered" role="menuitem">📌 Solo lo filtrado (.ics)</button>
+            <button type="button" data-export="json" role="menuitem">🗄️ Datos (.json)</button>
+          </div>
+        </div>
+
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Cambiar tema claro/oscuro">
+          <span class="icon-btn__icon" aria-hidden="true">🌙</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navegación principal entre vistas -->
+    <nav class="tabs" role="tablist" aria-label="Vistas principales">
+      <button class="tab is-active" data-view="calendario" role="tab" aria-selected="true">📅 Calendario</button>
+      <button class="tab" data-view="grupos" role="tab" aria-selected="false">👥 Grupos</button>
+      <button class="tab" data-view="bracket" role="tab" aria-selected="false">🏆 Eliminatorias</button>
+    </nav>
+  </header>
+
+  <!-- ============================ BARRA DE FILTROS ============================ -->
+  <section class="filters" id="filtersBar" aria-label="Filtros y búsqueda">
+    <div class="filters__search">
+      <span class="filters__search-icon" aria-hidden="true">🔎</span>
+      <input
+        type="search"
+        id="searchInput"
+        placeholder="Busca una selección (p. ej. Argentina, México)…"
+        autocomplete="off"
+        aria-label="Buscar selección" />
+    </div>
+
+    <div class="filters__controls">
+      <select id="filterFase" class="filter-select" aria-label="Filtrar por fase"></select>
+      <select id="filterGrupo" class="filter-select" aria-label="Filtrar por grupo"></select>
+      <select id="filterEquipo" class="filter-select" aria-label="Filtrar por selección"></select>
+      <select id="filterSede" class="filter-select" aria-label="Filtrar por sede o ciudad"></select>
+      <button id="clearFilters" class="ghost-btn" type="button">Limpiar</button>
+    </div>
+  </section>
+
+  <!-- Aviso de datos por confirmar / metadatos de extracción -->
+  <div class="data-banner" id="dataBanner" hidden></div>
+
+  <!-- ============================ CONTENIDO ============================ -->
+  <main class="content">
+    <!-- Vista: Calendario -->
+    <section id="view-calendario" class="view is-active" role="tabpanel" aria-label="Calendario por días">
+      <div class="results-meta" id="calendarMeta"></div>
+      <div id="calendarDays" class="calendar-days"></div>
+      <p class="empty-state" id="calendarEmpty" hidden>No hay partidos que coincidan con los filtros.</p>
+    </section>
+
+    <!-- Vista: Grupos -->
+    <section id="view-grupos" class="view" role="tabpanel" aria-label="Grupos y tablas de posiciones" hidden>
+      <p class="view-note">
+        Las tablas reflejan únicamente resultados verificados. Mientras un partido esté
+        <em>por confirmar</em> o sin jugar, no suma puntos.
+      </p>
+      <div id="groupsGrid" class="groups-grid"></div>
+    </section>
+
+    <!-- Vista: Bracket / eliminatorias -->
+    <section id="view-bracket" class="view" role="tabpanel" aria-label="Cuadro de eliminatorias" hidden>
+      <p class="view-note">
+        Cuadro desde dieciseisavos hasta la final. Los cruces muestran los marcadores de posición
+        oficiales (1A, 2B, 3C/D/F/…) hasta que se conozcan los clasificados.
+      </p>
+      <div id="bracket" class="bracket"></div>
+    </section>
+  </main>
+
+  <!-- ============================ MODAL DE PARTIDO ============================ -->
+  <div class="modal" id="matchModal" hidden>
+    <div class="modal__backdrop" data-close-modal></div>
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal__close" type="button" data-close-modal aria-label="Cerrar">✕</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p id="footerMeta">Cargando datos…</p>
+    <p class="app-footer__disclaimer">
+      Proyecto educativo. Datos contrastados con fuentes oficiales; los marcados como
+      <strong>«por confirmar»</strong> no pudieron verificarse con doble fuente.
+    </p>
+  </footer>
+
+  <!-- ============================ SCRIPTS ============================ -->
+  <!-- Datos generados por el scraping (se carga como objeto global window.WC2026
+       para que la app funcione abriendo index.html directamente, sin servidor). -->
+  <script src="data/datos.js"></script>
+
+  <!-- Módulos de la aplicación (orden = dependencias) -->
+  <script src="js/timezone.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/standings.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/groups.js"></script>
+  <script src="js/bracket.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Registro del service worker (PWA). Solo bajo http/https; NUNCA en
+       Electron ni al abrir el index.html como file:// → no rompe el escritorio. -->
+  <script>
+    if ("serviceWorker" in navigator &&
+        (location.protocol === "http:" || location.protocol === "https:")) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(function (err) {
+          console.warn("Service worker no registrado:", err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
