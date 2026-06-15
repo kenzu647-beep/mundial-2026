@@ -8,7 +8,7 @@
      network-first con fallback a caché → marcadores frescos con
      internet y app funcional sin conexión.
    ============================================================= */
-const CACHE = "wc2026-v1";
+const CACHE = "wc2026-v2";
 
 // App shell — lista exacta de archivos del proyecto (sin dist/ ni node_modules).
 const SHELL = [
@@ -24,6 +24,7 @@ const SHELL = [
   "./js/groups.js",
   "./js/bracket.js",
   "./js/export.js",
+  "./js/live.js",
   "./js/app.js",
   "./data/datos.js",
   "./data/partidos.json",

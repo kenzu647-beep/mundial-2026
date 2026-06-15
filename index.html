@@ -36,6 +36,13 @@
           <select id="tzSelect" aria-label="Selecciona tu zona horaria"></select>
         </label>
 
+        <div class="live">
+          <button id="liveRefresh" class="icon-btn" type="button" title="Actualizar resultados en vivo" aria-label="Actualizar resultados en vivo">
+            <span class="icon-btn__icon" id="liveIcon" aria-hidden="true">🔄</span>
+          </button>
+          <span id="liveStatus" class="live-status" hidden></span>
+        </div>
+
         <div class="export">
           <button id="exportBtn" class="icon-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Descargar calendario">
             <span class="icon-btn__icon" aria-hidden="true">⬇️</span>
@@ -144,6 +151,7 @@
   <script src="js/groups.js"></script>
   <script src="js/bracket.js"></script>
   <script src="js/export.js"></script>
+  <script src="js/live.js"></script>
   <script src="js/app.js"></script>
 
   <!-- Registro del service worker (PWA). Solo bajo http/https; NUNCA en

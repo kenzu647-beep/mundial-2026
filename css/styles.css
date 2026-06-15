@@ -121,6 +121,23 @@ em { color: var(--accent); font-style: normal; font-weight: 600; }
 .icon-btn:hover { background: rgba(255,255,255,.28); }
 .icon-btn:active { transform: scale(.92); }
 
+/* Estado "en vivo" */
+.live { display: flex; align-items: center; gap: .4rem; }
+.live-status {
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .2rem .5rem;
+  border-radius: 100px;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, .15);
+  color: #fff;
+}
+.live-status.is-live { background: rgba(52, 210, 127, .28); }
+.live-status.is-off { background: rgba(255, 255, 255, .12); opacity: .8; }
+.live-status.is-loading { background: rgba(255, 255, 255, .2); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.icon-btn__icon.spin { display: inline-block; animation: spin .9s linear infinite; }
+
 /* Menú de descarga */
 .export { position: relative; }
 .export__menu {

@@ -196,6 +196,20 @@
     );
   }
 
+  /* ---------------- Actualización en tiempo real ---------------- */
+  function initLive() {
+    const btn = document.getElementById("liveRefresh");
+    if (btn) btn.addEventListener("click", function () {
+      if (global.WCLive) global.WCLive.refresh(true); // refresco completo manual
+    });
+    if (!global.WCLive) return;
+    if (navigator.onLine) global.WCLive.refresh(false);          // al cargar
+    window.addEventListener("online", function () { global.WCLive.refresh(false); });
+    setInterval(function () {                                     // sondeo periódico
+      if (navigator.onLine && !document.hidden) global.WCLive.refresh(false);
+    }, 120000);
+  }
+
   /* ---------------- Tick de cuentas regresivas ---------------- */
   function initTicker() {
     setInterval(() => {
@@ -242,6 +256,9 @@
       global.WCFilters.mount(rerenderCalendar);
       renderAll();
       initTicker();
+      // Hook de re-render para que live.js redibuje tras actualizar marcadores.
+      global.WCApp = { rerenderAll: renderAll, rerenderCalendar: rerenderCalendar };
+      initLive();
     }
     showView("calendario");
   }
